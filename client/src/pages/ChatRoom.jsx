@@ -1,11 +1,15 @@
 import { useParams, Link } from "react-router-dom";
 import { useChat } from "../hooks/useChat";
+import { useMessages } from "../hooks/useMessages";
+import MessageList from "../components/chat/MessageList";
+import MessageInput from "../components/chat/MessageInput";
 
 export default function ChatRoom() {
   const { roomId } = useParams();
-  const { rooms, conversations, loading } = useChat();
+  const { rooms, conversations, loading: chatLoading } = useChat();
+  const { messages, typingUser, loading, sendMessage } = useMessages(roomId);
 
-  if (loading) return <div className="flex-1 flex items-center justify-center text-sm text-scribe">Chargement…</div>;
+  if (chatLoading) return <div className="flex-1 flex items-center justify-center text-sm text-scribe">Chargement…</div>;
 
   const room = rooms.find((r) => r._id === roomId);
   const conv = conversations.find((c) => c._id === roomId);
@@ -27,9 +31,12 @@ export default function ChatRoom() {
         <h1 className="font-medium text-ink text-[15px] truncate">{title}</h1>
         {room && <span className="text-xs text-scribe">{room.members.length} membres</span>}
       </header>
-      <section className="flex-1 flex items-center justify-center text-sm text-scribe">
-        🏗 Flux de messages — construit au Lot 3
-      </section>
+
+      {loading
+        ? <div className="flex-1 flex items-center justify-center text-sm text-scribe">Chargement des messages…</div>
+        : <MessageList messages={messages} typingUser={typingUser} />}
+
+      <MessageInput onSend={sendMessage} roomName={title} />
     </>
   );
 }
