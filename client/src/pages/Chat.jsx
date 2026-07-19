@@ -1,29 +1,21 @@
-import { useAuth } from "../hooks/useAuth";
-import Button from "../components/ui/Button";
+import { Outlet, useMatch } from "react-router-dom";
+import { ChatProvider } from "../context/ChatContext";
+import Sidebar from "../components/layouts/Sidebar";
 
 export default function Chat() {
-  const { user, logout } = useAuth();
+  const inRoom = Boolean(useMatch("/chat/:roomId"));
 
   return (
-    <main className="min-h-screen flex flex-col">
-      <header className="bg-lapis text-white px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg bg-gold text-gold-soft flex items-center justify-center font-display text-lg">T</div>
-          <span className="font-display text-lg">ThotTalk</span>
+    <ChatProvider>
+      <div className="h-screen flex overflow-hidden">
+        {/* Mobile : sidebar visible seulement hors salon. Desktop : toujours visible. */}
+        <div className={`${inRoom ? "hidden" : "flex"} md:flex w-full md:w-auto`}>
+          <Sidebar />
         </div>
-        <div className="flex items-center gap-4">
-          <span className="text-sm text-white/80">
-            Connecté en tant que <strong className="text-white">{user.username}</strong>
-          </span>
-          <Button variant="gold" onClick={logout}>Se déconnecter</Button>
-        </div>
-      </header>
-
-      <section className="flex-1 flex items-center justify-center">
-        <p className="text-scribe text-sm">
-          🏗 Zone de chat — construite au Lot 2 (sidebar, salons, messages)
-        </p>
-      </section>
-    </main>
+        <main className={`${inRoom ? "flex" : "hidden"} md:flex flex-1 flex-col min-w-0`}>
+          <Outlet />
+        </main>
+      </div>
+    </ChatProvider>
   );
 }

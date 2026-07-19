@@ -1,0 +1,35 @@
+import { useParams, Link } from "react-router-dom";
+import { useChat } from "../hooks/useChat";
+
+export default function ChatRoom() {
+  const { roomId } = useParams();
+  const { rooms, conversations, loading } = useChat();
+
+  if (loading) return <div className="flex-1 flex items-center justify-center text-sm text-scribe">Chargement…</div>;
+
+  const room = rooms.find((r) => r._id === roomId);
+  const conv = conversations.find((c) => c._id === roomId);
+  if (!room && !conv) {
+    return (
+      <div className="flex-1 flex flex-col items-center justify-center gap-2 text-sm text-scribe">
+        <p>Ce salon n'existe pas ou a été supprimé.</p>
+        <Link to="/chat" className="text-gold hover:underline">Retour à l'accueil</Link>
+      </div>
+    );
+  }
+
+  const title = room ? `# ${room.name}` : conv.participants[1].username;
+
+  return (
+    <>
+      <header className="flex items-center gap-3 px-4 py-3 bg-white border-b border-scribe/15">
+        <Link to="/chat" className="md:hidden text-lapis text-lg" aria-label="Retour">←</Link>
+        <h1 className="font-medium text-ink text-[15px] truncate">{title}</h1>
+        {room && <span className="text-xs text-scribe">{room.members.length} membres</span>}
+      </header>
+      <section className="flex-1 flex items-center justify-center text-sm text-scribe">
+        🏗 Flux de messages — construit au Lot 3
+      </section>
+    </>
+  );
+}

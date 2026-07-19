@@ -4,6 +4,8 @@ import { useAuth } from "./hooks/useAuth";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Chat from "./pages/Chat";
+import ChatWelcome from "./pages/ChatWelcome";
+import ChatRoom from "./pages/ChatRoom";
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
@@ -18,8 +20,10 @@ export default function App() {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/chat" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
-          <Route path="*" element={<Navigate to="/chat" replace />} />
+          <Route path="/chat" element={<ProtectedRoute><Chat /></ProtectedRoute>}>
+            <Route index element={<ChatWelcome />} />
+            <Route path=":roomId" element={<ChatRoom />} />
+          </Route>          <Route path="*" element={<Navigate to="/chat" replace />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>
