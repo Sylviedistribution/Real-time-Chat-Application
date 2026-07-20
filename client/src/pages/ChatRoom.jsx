@@ -3,13 +3,19 @@ import { useChat } from "../hooks/useChat";
 import { useMessages } from "../hooks/useMessages";
 import MessageList from "../components/chat/MessageList";
 import MessageInput from "../components/chat/MessageInput";
+<<<<<<< HEAD
 import MembersPanel from "../components/chat/MembersPanel";
+=======
+>>>>>>> 1aa6f45b82911598d043dcf90324f24003171291
 
 export default function ChatRoom() {
   const { roomId } = useParams();
   const { rooms, conversations, loading: chatLoading } = useChat();
   const { messages, typingUser, loading, sendMessage } = useMessages(roomId);
+<<<<<<< HEAD
   const [showMembers, setShowMembers] = useState(false);
+=======
+>>>>>>> 1aa6f45b82911598d043dcf90324f24003171291
 
   if (chatLoading) return <div className="flex-1 flex items-center justify-center text-sm text-scribe">Chargement…</div>;
 
@@ -32,6 +38,7 @@ export default function ChatRoom() {
         <Link to="/chat" className="md:hidden text-lapis text-lg" aria-label="Retour">←</Link>
         <h1 className="font-medium text-ink text-[15px] truncate">{title}</h1>
         {room && <span className="text-xs text-scribe">{room.members.length} membres</span>}
+<<<<<<< HEAD
         {room && (
           <button
             onClick={() => setShowMembers((v) => !v)}
@@ -41,6 +48,8 @@ export default function ChatRoom() {
             👥
           </button>
         )}
+=======
+>>>>>>> 1aa6f45b82911598d043dcf90324f24003171291
       </header>
 
       {loading

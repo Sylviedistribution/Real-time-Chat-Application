@@ -23,9 +23,13 @@ export default function App() {
           <Route path="/chat" element={<ProtectedRoute><Chat /></ProtectedRoute>}>
             <Route index element={<ChatWelcome />} />
             <Route path=":roomId" element={<ChatRoom />} />
+<<<<<<< HEAD
           </Route>          
           <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
           <Route path="*" element={<Navigate to="/chat" replace />} />
+=======
+          </Route>          <Route path="*" element={<Navigate to="/chat" replace />} />
+>>>>>>> 1aa6f45b82911598d043dcf90324f24003171291
         </Routes>
       </BrowserRouter>
     </AuthProvider>
