@@ -1,5 +1,6 @@
 import { createContext, useState, useEffect } from "react";
-import { loginMock, registerMock } from "../mocks/auth.mock";
+import { registerApi, loginApi, meApi } from "../api/auth.api";
+import { TOKEN_KEY } from "../api/axios";
 
 export const AuthContext = createContext(null);
 
@@ -7,40 +8,55 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Au montage : restaurer la session depuis le stockage local
+  // Au démarrage : si un token existe, demander au SERVEUR qui nous sommes
   useEffect(() => {
-    const saved = localStorage.getItem("thottalk_user");
-    if (saved) setUser(JSON.parse(saved));
-    setLoading(false);
+    let cancelled = false;
+
+    async function restoreSession() {
+      const token = localStorage.getItem(TOKEN_KEY);
+      if (!token) {
+        setLoading(false);
+        return;
+      }
+      try {
+        const { user: me } = await meApi(); // le token part via l'intercepteur
+        if (!cancelled) setUser(me);
+      } catch {
+        // Token invalide, expiré, ou compte supprimé : on nettoie
+        localStorage.removeItem(TOKEN_KEY);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+    restoreSession();
+
+    return () => { cancelled = true; };
   }, []);
 
   const login = async (credentials) => {
-    const loggedUser = await loginMock(credentials); // ⇄ deviendra un appel API réel
-    setUser(loggedUser);
-    localStorage.setItem("thottalk_user", JSON.stringify(loggedUser));
+    const { user: logged, token } = await loginApi(credentials);
+    localStorage.setItem(TOKEN_KEY, token);
+    setUser(logged);
   };
 
-  const register = async (data) => {
-    const newUser = await registerMock(data);
-    setUser(newUser);
-    localStorage.setItem("thottalk_user", JSON.stringify(newUser));
+  const register = async (formData) => {
+    const { user: created, token } = await registerApi(formData);
+    localStorage.setItem(TOKEN_KEY, token);
+    setUser(created);
   };
 
   const logout = () => {
+    localStorage.removeItem(TOKEN_KEY);
     setUser(null);
-    localStorage.removeItem("thottalk_user");
   };
 
   const updateProfile = (changes) => {
-    setUser((prev) => {
-      const updated = { ...prev, ...changes };
-      localStorage.setItem("thottalk_user", JSON.stringify(updated));
-      return updated;
-    });
+    setUser((prev) => ({ ...prev, ...changes }));
+    // ⇄ Lot B3 : deviendra un PATCH /api/users/me persisté
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout, updateProfile}}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout, updateProfile }}>
       {children}
     </AuthContext.Provider>
   );
