@@ -37,10 +37,9 @@ const userSchema = new mongoose.Schema(
 );
 
 // Hook : hasher le mot de passe avant chaque sauvegarde s'il a changé
-userSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) return next();
+userSchema.pre("save", async function () {
+  if (!this.isModified("password")) return;
   this.password = await bcrypt.hash(this.password, 12);
-  next();
 });
 
 // Méthode d'instance : comparer un mot de passe candidat au hash
