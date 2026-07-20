@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useAuth } from "../../hooks/useAuth";
-import MessageBubble from "./MessageBubble";
+import MessageBubble from "../ui/MessageBubble";
 
 export default function MessageList({ messages, typingUser }) {
   const { user } = useAuth();

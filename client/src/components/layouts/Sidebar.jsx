@@ -61,7 +61,10 @@ export default function Sidebar() {
 
       <div className="flex items-center gap-2.5 px-4 py-3 border-t border-lapis-light/40">
         <Avatar username={user.username} status="online" size="md" />
-        <span className="text-sm text-white truncate">{user.username}</span>
+
+        <NavLink to={`/profile`} className={`${itemClass} text-sm text-white truncate px-0`}>
+          {user.username}
+        </NavLink>
         <button
           onClick={logout}
           title="Se déconnecter"

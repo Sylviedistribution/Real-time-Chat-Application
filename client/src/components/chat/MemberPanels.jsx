@@ -26,7 +26,7 @@ export default function MembersPanel({ room, open }) {
               {m.username}
             </span>
             {room.owner === m._id && (
-              <span className="text-gold text-xs" title="Propriétaire du salon">♦</span>
+              <span className="text-gold text-xs" title="Propriétaire du salon">♦ Owner</span>
             )}
           </li>
         ))}

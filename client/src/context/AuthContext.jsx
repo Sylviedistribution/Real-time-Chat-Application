@@ -31,7 +31,6 @@ export function AuthProvider({ children }) {
     localStorage.removeItem("thottalk_user");
   };
 
-<<<<<<< HEAD
   const updateProfile = (changes) => {
     setUser((prev) => {
       const updated = { ...prev, ...changes };
@@ -40,10 +39,8 @@ export function AuthProvider({ children }) {
     });
   };
 
-=======
->>>>>>> 1aa6f45b82911598d043dcf90324f24003171291
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout, updateProfile}}>
       {children}
     </AuthContext.Provider>
   );

@@ -52,7 +52,7 @@ export default function Login() {
             })}
           />
           {serverError && (
-            <p role="alert" className="text-sm text-danger bg-danger/5 rounded-lg px-3 py-2">{serverError}</p>
+            <p role="alert" className="text-sm text-red-500 bg-danger/5 rounded-lg px-3 py-2">{serverError}</p>
           )}
           <Button type="submit" disabled={submitting} className="mt-2">
             {submitting ? "Connexion…" : "Se connecter"}

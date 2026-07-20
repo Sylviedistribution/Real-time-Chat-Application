@@ -8,7 +8,7 @@ export default function Input({ label, error, ...props }) {
           ${error ? "border-danger focus:ring-danger/30" : "border-scribe/25 focus:ring-lapis/30 focus:border-lapis"}`}
         {...props}
       />
-      {error && <span className="text-xs text-danger">{error}</span>}
+      {error && <span className="text-xs text-red-500">{error}</span>}
     </div>
   );
 }
