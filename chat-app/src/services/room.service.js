@@ -6,6 +6,7 @@ const MEMBER_FIELDS = "username avatarUrl status";
 async function listRooms() {
     return Room.find({ isPrivate: false })
         .populate("owner", MEMBER_FIELDS)
+        .populate("members", MEMBER_FIELDS)   // ← ajout : le panneau en a besoin
         .sort({ createdAt: 1 });
 }
 
@@ -66,4 +67,13 @@ async function kickMember(ownerId, roomId, targetId, { ban = false } = {}) {
     return getRoomById(roomId);
 }
 
+// room.service.js — à ajouter
+async function deleteRoom(ownerId, roomId) {
+  const room = await Room.findById(roomId);
+  if (!room) throw new ApiError(404, "Salon introuvable");
+  if (!room.isOwner(ownerId)) throw new ApiError(403, "Seul le propriétaire peut supprimer ce salon");
+  await Message.deleteMany({ room: roomId });   // pas de messages orphelins
+  await room.deleteOne();
+  return { deleted: true };
+}
 module.exports = { listRooms, createRoom, getRoomById, joinRoom, leaveRoom, kickMember };
