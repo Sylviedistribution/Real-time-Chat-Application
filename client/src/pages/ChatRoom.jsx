@@ -33,14 +33,15 @@ export default function ChatRoom() {
         <Link to="/chat" className="md:hidden text-lapis text-lg" aria-label="Retour">←</Link>
         <h1 className="font-medium text-ink text-[15px] truncate">{title}</h1>
         {room && <span className="text-xs text-scribe">{room.members.length} membres</span>}
+        // dans le header, après le compteur de membres (room seulement) :
         {room && (
-          <button
-            onClick={() => setShowMembers((v) => !v)}
-            aria-label="Afficher les membres"
-            className="ml-auto lg:hidden text-scribe hover:text-lapis transition text-sm"
-          >
-            👥
-          </button>
+          <span className="ml-auto flex items-center gap-3">
+            {isOwner
+              ? <button onClick={handleDelete} className="text-xs text-scribe hover:text-danger transition">Supprimer</button>
+              : <button onClick={handleLeave} className="text-xs text-scribe hover:text-danger transition">Quitter</button>}
+            <button onClick={() => setShowMembers((v) => !v)} aria-label="Afficher les membres"
+              className="lg:hidden text-scribe hover:text-lapis transition text-sm">👥</button>
+          </span>
         )}
       </header>
 
