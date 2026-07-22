@@ -1,40 +1,68 @@
 import { useState, useEffect } from "react";
-import { fetchMessages, sendMessageApi } from "../api/messages.api";
+import { fetchMessages } from "../api/messages.api";
+import { getSocket } from "../sockets/socket";
 import { useAuth } from "./useAuth";
 
 export function useMessages(channelId) {
   const { user } = useAuth();
   const [messages, setMessages] = useState([]);
-  const [typingUser] = useState(null);   // réactivé au Lot B4 (socket réel)
+  const [typingUser] = useState(null);      // Lot B5
   const [loading, setLoading] = useState(true);
 
+  // Effet 1 — l'historique par REST (inchangé)
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
     setMessages([]);
-
     fetchMessages(channelId)
       .then(({ messages: history }) => { if (!cancelled) setMessages(history); })
       .catch(() => { if (!cancelled) setMessages([]); })
       .finally(() => { if (!cancelled) setLoading(false); });
-
     return () => { cancelled = true; };
   }, [channelId]);
 
-  const sendMessage = async (content) => {
+  // Effet 2 — le temps réel par socket (de retour, en réel)
+  useEffect(() => {
+    const socket = getSocket();
+
+    socket.emit("channel:join", channelId, (res) => {
+      if (!res?.success) console.warn("join refusé :", res?.message);
+    });
+
+    function handleNew(message) {
+      const chanId = message.room || message.conversation;
+      if (chanId !== channelId) return;                    // pas pour cet écran
+      setMessages((prev) =>
+        prev.some((m) => m._id === message._id) ? prev : [...prev, message]
+      );
+    }
+
+    socket.on("message:new", handleNew);
+
+    return () => {
+      socket.emit("channel:leave", channelId);
+      socket.off("message:new", handleNew);
+    };
+  }, [channelId]);
+
+  // Envoi optimiste — l'ack socket remplace l'await REST
+  const sendMessage = (content) => {
+    const socket = getSocket();
     const tempId = `tmp_${Date.now()}`;
     const optimistic = {
       _id: tempId, sender: user, content, type: "text",
       status: "sending", createdAt: new Date().toISOString(),
     };
     setMessages((prev) => [...prev, optimistic]);
-    try {
-      const confirmed = await sendMessageApi(channelId, content);
-      setMessages((prev) => prev.map((m) => (m._id === tempId ? confirmed : m)));
-    } catch (err) {
-      setMessages((prev) => prev.filter((m) => m._id !== tempId));
-      alert(err.message);
-    }
+
+    socket.emit("message:send", { channelId, content }, (ack) => {
+      if (ack?.success) {
+        setMessages((prev) => prev.map((m) => (m._id === tempId ? ack.message : m)));
+      } else {
+        setMessages((prev) => prev.filter((m) => m._id !== tempId));
+        alert(ack?.message || "Échec de l'envoi");
+      }
+    });
   };
 
   return { messages, typingUser, loading, sendMessage };
