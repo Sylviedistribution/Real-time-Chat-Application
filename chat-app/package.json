@@ -5,7 +5,11 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon src/server.js",
-    "start": "node src/server.js"
+    "start": "node src/server.js",
+    "test": "jest --runInBand",
+    "test:watch": "jest --watch --runInBand",
+    "test:coverage": "jest --coverage --runInBand",
+    "swagger": "node swagger.js"
   },
   "keywords": [],
   "type": "commonjs",
@@ -22,11 +26,14 @@
     "morgan": "^1.11.0",
     "multer": "^2.2.0",
     "socket.io": "^4.8.3",
-    "socket.io-client": "^4.8.3"
+    "swagger-autogen": "^2.23.7",
+    "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
     "jest": "^30.4.2",
+    "mongodb-memory-server": "^11.2.0",
     "nodemon": "^3.1.14",
+    "socket.io-client": "^4.8.3",
     "supertest": "^7.2.2"
   }
 }

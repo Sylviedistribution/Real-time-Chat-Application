@@ -15,6 +15,7 @@ const authLimiter = rateLimit({
   max: 10,                        // 10 tentatives de login/register par IP par 15 min
   standardHeaders: true,
   legacyHeaders: false,
+  skip: () => process.env.NODE_ENV === "test",
   message: { success: false, message: "Trop de tentatives, réessayez dans 15 minutes" },
 });
 
