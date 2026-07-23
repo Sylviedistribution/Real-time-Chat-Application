@@ -9,4 +9,18 @@ async function updateMe(userId, { username, avatarUrl }) {
   return toPublicUser(user);
 }
 
-module.exports = { updateMe };
+async function searchUsers(currentUserId, q) {
+  // Échapper les caractères spéciaux : une entrée utilisateur ne devient JAMAIS
+  // une expression régulière telle quelle (injection / déni de service par regex)
+  const safe = q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+  return User.find({
+    _id: { $ne: currentUserId },              // on ne se cherche pas soi-même
+    username: { $regex: safe, $options: "i" }, // "i" = insensible à la casse
+  })
+    .select("username avatarUrl status")       // jamais l'email : minimisation
+    .limit(10)
+    .sort({ username: 1 });
+}
+
+module.exports = { updateMe, searchUsers};
