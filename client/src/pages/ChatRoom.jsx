@@ -3,24 +3,25 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { useChat } from "../hooks/useChat";
 import { useMessages } from "../hooks/useMessages";
 import { useAuth } from "../hooks/useAuth";
-import { Navigate } from "react-router-dom";
 import MessageList from "../components/chat/MessageList";
 import MessageInput from "../components/chat/MessageInput";
 import MembersPanel from "../components/chat/MemberPanels";
+import MessagesSkeleton from "../components/chat/MessagesSkeleteton";
+import Spinner from "../components/ui/Spinner";
 
 export default function ChatRoom() {
+  // --- 1. TOUS les hooks, avant toute condition ---
   const { roomId } = useParams();
+  const navigate = useNavigate();
+  const { user } = useAuth();
   const { rooms, conversations, loading: chatLoading, deleteRoom, leaveRoom } = useChat();
   const { messages, typingUser, loading, sendMessage } = useMessages(roomId);
   const [showMembers, setShowMembers] = useState(false);
-  const { user } = useAuth();
 
-  if (chatLoading) return <div className="flex-1 flex items-center justify-center text-sm text-scribe">Chargement…</div>;
-
+  // --- 2. Données dérivées et handlers ---
   const room = rooms.find((r) => r._id === roomId);
   const conv = conversations.find((c) => c._id === roomId);
-  const isOwner = room && room.owner._id === user._id;
-  const navigate = useNavigate();
+  const isOwner = room && (room.owner._id ?? room.owner) === user._id;
 
   const handleDelete = async () => {
     if (!window.confirm(`Supprimer définitivement ${room.name} et tous ses messages ?`)) return;
@@ -42,6 +43,15 @@ export default function ChatRoom() {
     }
   };
 
+  // --- 3. Rendus conditionnels, APRÈS les hooks ---
+  if (chatLoading) {
+    return (
+      <div className="flex-1 flex items-center justify-center">
+        <Spinner size={26} className="text-lapis/40" />
+      </div>
+    );
+  }
+
   if (!room && !conv) {
     return (
       <div className="flex-1 flex flex-col items-center justify-center gap-2 text-sm text-scribe">
@@ -51,8 +61,11 @@ export default function ChatRoom() {
     );
   }
 
-  const title = room ? `# ${room.name}` : conv.participants[1].username;
+  const title = room
+    ? `# ${room.name}`
+    : conv.participants.find((p) => p._id !== user._id)?.username ?? "Conversation";
 
+  // --- 4. Rendu principal ---
   return (
     <>
       <header className="flex items-center gap-3 px-4 py-3 bg-white border-b border-scribe/15">
@@ -73,7 +86,7 @@ export default function ChatRoom() {
       <div className="flex-1 flex min-h-0 relative">
         <div className="flex-1 flex flex-col min-w-0">
           {loading
-            ? <div className="flex-1 flex items-center justify-center text-sm text-scribe">Chargement des messages…</div>
+            ? <MessagesSkeleton />
             : <MessageList messages={messages} typingUser={typingUser} />}
           <MessageInput onSend={sendMessage} roomName={title} />
         </div>

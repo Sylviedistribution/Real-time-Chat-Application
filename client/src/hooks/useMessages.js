@@ -52,7 +52,7 @@ export function useMessages(channelId) {
   }, [channelId]);
 
   // Envoi optimiste — l'ack socket remplace l'await REST
-  const sendMessage = (content) => {
+const sendMessage = (content) => {
     const socket = getSocket();
     const tempId = `tmp_${Date.now()}`;
     const optimistic = {
