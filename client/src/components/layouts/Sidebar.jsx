@@ -5,6 +5,7 @@ import { useChat } from "../../hooks/useChat";
 import Avatar from "../ui/Avatar";
 import CreateRoomModal from "../rooms/CreateRoomModal";
 import NewConversationModal from "../chat/NewConversationModal";
+import Skeleton from "../ui/Skeleton";
 
 function SectionTitle({ children, action }) {
   return (
@@ -64,8 +65,13 @@ export default function Sidebar() {
         >
           Mes salons
         </SectionTitle>
-        {loading && <p className="px-4 py-1.5 text-sm text-white/40">Chargement…</p>}
-        {!loading && myRooms.length === 0 && (
+        {loading && (
+          <div className="px-4 py-1.5 flex flex-col gap-2 text-white">
+            <Skeleton className="h-4 w-4/5" />
+            <Skeleton className="h-4 w-3/5" />
+            <Skeleton className="h-4 w-2/3" />
+          </div>
+        )}        {!loading && myRooms.length === 0 && (
           <p className="px-4 py-1.5 text-xs text-white/40">Créez ou rejoignez un salon ↓</p>
         )}
         {myRooms.map((room) => (

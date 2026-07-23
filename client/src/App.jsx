@@ -7,10 +7,11 @@ import Chat from "./pages/Chat";
 import ChatWelcome from "./pages/ChatWelcome";
 import ChatRoom from "./pages/ChatRoom";
 import Profile from "./pages/Profile";
+import LoadingScreen from "./components/ui/LoadingScreen";
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
-  if (loading) return null; // évite le "flash" de redirection au rechargement
+  if (loading) return <LoadingScreen />;
   return user ? children : <Navigate to="/login" replace />;
 }
 
