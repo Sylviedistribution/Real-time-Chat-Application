@@ -1,6 +1,6 @@
 const Room = require("../models/Room");
+const Message = require("../models/Message");
 const ApiError = require("../utils/ApiError");
-
 const MEMBER_FIELDS = "username avatarUrl status";
 
 async function listRooms() {
@@ -76,4 +76,4 @@ async function deleteRoom(ownerId, roomId) {
   await room.deleteOne();
   return { deleted: true };
 }
-module.exports = { listRooms, createRoom, getRoomById, joinRoom, leaveRoom, kickMember };
+module.exports = { listRooms, createRoom, getRoomById, joinRoom, leaveRoom, kickMember, deleteRoom };

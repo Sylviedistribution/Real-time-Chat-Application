@@ -23,7 +23,9 @@ app.get("/api/health", (req, res) => {
 
 // --- Toutes les routes métier, via le sommaire ---
 app.use("/api", routes);
-
+app.use((req, res, next) =>
+  req.path.startsWith("/socket.io") ? next() : globalLimiter(req, res, next)
+);
 // --- Gestion d'erreurs : TOUJOURS en dernier ---
 app.use(notFound);
 app.use(errorHandler);

@@ -12,4 +12,5 @@ router.get("/:roomId", ctrl.getOne);
 router.post("/:roomId/join", ctrl.join);
 router.post("/:roomId/leave", ctrl.leave);
 router.post("/:roomId/kick/:userId", ctrl.kick);   // body optionnel { ban: true }
+router.delete("/:roomId", ctrl.remove);   // body optionnel { ban: true }
 module.exports = router;
