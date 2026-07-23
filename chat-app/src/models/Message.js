@@ -33,18 +33,17 @@ const messageSchema = new mongoose.Schema(
 );
 
 // Contrainte métier du diagramme de classes : room XOR conversation
-messageSchema.pre("validate", function (next) {
+messageSchema.pre("validate", function () {
   const hasRoom = !!this.room;
   const hasConversation = !!this.conversation;
   if (hasRoom === hasConversation) {
-    return next(
+    return (
       new Error("Un message appartient soit à un salon, soit à une conversation")
     );
   }
-  next();
 });
 
-// Index composés : le cœur de la performance de la pagination (FR-12)
+// Index composés : le cœur de la performance de la pagination
 messageSchema.index({ room: 1, createdAt: -1 });
 messageSchema.index({ conversation: 1, createdAt: -1 });
 

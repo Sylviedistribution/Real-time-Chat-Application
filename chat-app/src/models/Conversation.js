@@ -16,14 +16,13 @@ const conversationSchema = new mongoose.Schema(
 );
 
 // Calcul automatique de la clé canonique avant validation
-conversationSchema.pre("validate", function (next) {
+conversationSchema.pre("validate", function () {
   if (this.participants?.length === 2) {
     this.participantsKey = this.participants
       .map((id) => id.toString())
       .sort()
       .join("_");
   }
-  next();
 });
 
 module.exports = mongoose.model("Conversation", conversationSchema);
