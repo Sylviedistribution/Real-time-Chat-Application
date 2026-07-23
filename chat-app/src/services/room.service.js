@@ -11,7 +11,8 @@ async function listRooms() {
 }
 
 async function createRoom(ownerId, { name, description }) {
-    return Room.create({ name, description, owner: ownerId, members: [ownerId] });
+    const room = await Room.create({ name, description, owner: ownerId, members: [ownerId] });
+    return getRoomById(room._id);
 }
 
 async function getRoomById(roomId) {
@@ -69,11 +70,11 @@ async function kickMember(ownerId, roomId, targetId, { ban = false } = {}) {
 
 // room.service.js — à ajouter
 async function deleteRoom(ownerId, roomId) {
-  const room = await Room.findById(roomId);
-  if (!room) throw new ApiError(404, "Salon introuvable");
-  if (!room.isOwner(ownerId)) throw new ApiError(403, "Seul le propriétaire peut supprimer ce salon");
-  await Message.deleteMany({ room: roomId });   // pas de messages orphelins
-  await room.deleteOne();
-  return { deleted: true };
+    const room = await Room.findById(roomId);
+    if (!room) throw new ApiError(404, "Salon introuvable");
+    if (!room.isOwner(ownerId)) throw new ApiError(403, "Seul le propriétaire peut supprimer ce salon");
+    await Message.deleteMany({ room: roomId });   // pas de messages orphelins
+    await room.deleteOne();
+    return { deleted: true };
 }
 module.exports = { listRooms, createRoom, getRoomById, joinRoom, leaveRoom, kickMember, deleteRoom };
