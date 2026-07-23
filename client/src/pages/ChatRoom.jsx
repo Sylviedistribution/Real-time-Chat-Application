@@ -1,21 +1,47 @@
 import { useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { useChat } from "../hooks/useChat";
 import { useMessages } from "../hooks/useMessages";
+import { useAuth } from "../hooks/useAuth";
+import { Navigate } from "react-router-dom";
 import MessageList from "../components/chat/MessageList";
 import MessageInput from "../components/chat/MessageInput";
 import MembersPanel from "../components/chat/MemberPanels";
 
 export default function ChatRoom() {
   const { roomId } = useParams();
-  const { rooms, conversations, loading: chatLoading } = useChat();
+  const { rooms, conversations, loading: chatLoading, deleteRoom, leaveRoom } = useChat();
   const { messages, typingUser, loading, sendMessage } = useMessages(roomId);
   const [showMembers, setShowMembers] = useState(false);
+  const { user } = useAuth();
 
   if (chatLoading) return <div className="flex-1 flex items-center justify-center text-sm text-scribe">Chargement…</div>;
 
   const room = rooms.find((r) => r._id === roomId);
   const conv = conversations.find((c) => c._id === roomId);
+  const isOwner = room && room.owner._id === user._id;
+  const navigate = useNavigate();
+
+  const handleDelete = async () => {
+    if (!window.confirm(`Supprimer définitivement ${room.name} et tous ses messages ?`)) return;
+    try {
+      await deleteRoom(room._id);
+      navigate("/chat");
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
+  const handleLeave = async () => {
+    if (!window.confirm(`Quitter le salon ${room.name} ?`)) return;
+    try {
+      await leaveRoom(room._id);
+      navigate("/chat");
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
   if (!room && !conv) {
     return (
       <div className="flex-1 flex flex-col items-center justify-center gap-2 text-sm text-scribe">
@@ -33,7 +59,6 @@ export default function ChatRoom() {
         <Link to="/chat" className="md:hidden text-lapis text-lg" aria-label="Retour">←</Link>
         <h1 className="font-medium text-ink text-[15px] truncate">{title}</h1>
         {room && <span className="text-xs text-scribe">{room.members.length} membres</span>}
-        // dans le header, après le compteur de membres (room seulement) :
         {room && (
           <span className="ml-auto flex items-center gap-3">
             {isOwner

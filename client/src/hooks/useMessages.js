@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { fetchMessages } from "../api/messages.api";
+import { fetchMessagesApi } from "../api/messages.api";
 import { getSocket } from "../sockets/socket";
 import { useAuth } from "./useAuth";
 
@@ -14,7 +14,7 @@ export function useMessages(channelId) {
     let cancelled = false;
     setLoading(true);
     setMessages([]);
-    fetchMessages(channelId)
+    fetchMessagesApi(channelId)
       .then(({ messages: history }) => { if (!cancelled) setMessages(history); })
       .catch(() => { if (!cancelled) setMessages([]); })
       .finally(() => { if (!cancelled) setLoading(false); });
@@ -25,9 +25,14 @@ export function useMessages(channelId) {
   useEffect(() => {
     const socket = getSocket();
 
-    socket.emit("channel:join", channelId, (res) => {
-      if (!res?.success) console.warn("join refusé :", res?.message);
-    });
+    const joinChannel = () => {
+      socket.emit("channel:join", channelId, (res) => {
+        if (!res?.success) console.warn("join refusé :", res?.message);
+      });
+    };
+
+    joinChannel();                 // à l'entrée dans le salon
+    socket.on("connect", joinChannel);   // et après chaque reconnexion
 
     function handleNew(message) {
       const chanId = message.room || message.conversation;
@@ -41,6 +46,7 @@ export function useMessages(channelId) {
 
     return () => {
       socket.emit("channel:leave", channelId);
+      socket.off("connect", joinChannel);
       socket.off("message:new", handleNew);
     };
   }, [channelId]);
@@ -57,7 +63,12 @@ export function useMessages(channelId) {
 
     socket.emit("message:send", { channelId, content }, (ack) => {
       if (ack?.success) {
-        setMessages((prev) => prev.map((m) => (m._id === tempId ? ack.message : m)));
+        setMessages((prev) => {
+          const dejaRecu = prev.some((m) => m._id === ack.message._id);
+          return dejaRecu
+            ? prev.filter((m) => m._id !== tempId)
+            : prev.map((m) => (m._id === tempId ? ack.message : m));
+        });
       } else {
         setMessages((prev) => prev.filter((m) => m._id !== tempId));
         alert(ack?.message || "Échec de l'envoi");

@@ -1,7 +1,6 @@
 import { createContext, useState, useEffect, useCallback } from "react";
 import { fetchRooms, createRoomApi, joinRoomApi, leaveRoomApi, deleteRoomApi, kickMemberApi } from "../api/rooms.api";
-import { fetchConversations } from "../api/conversations.api";
-
+import { fetchConversationsApi, getOrCreateConversationApi} from "../api/conversations.api";
 export const ChatContext = createContext(null);
 
 export function ChatProvider({ children }) {
@@ -10,7 +9,7 @@ export function ChatProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   const refresh = useCallback(async () => {
-    const [r, c] = await Promise.all([fetchRooms(), fetchConversations()]);
+    const [r, c] = await Promise.all([fetchRooms(), fetchConversationsApi()]);
     setRooms(r);
     setConversations(c);
   }, []);
@@ -18,7 +17,7 @@ export function ChatProvider({ children }) {
   useEffect(() => {
     let cancelled = false;
     refresh()
-      .catch(() => {})               // erreur réseau : listes vides, pas de crash
+      .catch(() => { })               // erreur réseau : listes vides, pas de crash
       .finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
   }, [refresh]);
@@ -54,10 +53,18 @@ export function ChatProvider({ children }) {
     return room;
   };
 
+  const startConversation = async (userId) => {
+    const conversation = await getOrCreateConversationApi(userId);
+    setConversations((prev) =>
+      prev.some((c) => c._id === conversation._id) ? prev : [conversation, ...prev]
+    );
+    return conversation;
+  };
+
   return (
     <ChatContext.Provider value={{
       rooms, conversations, loading, refresh,
-      createRoom, joinRoom, leaveRoom, deleteRoom, kickMember,
+      createRoom, joinRoom, leaveRoom, deleteRoom, kickMember, startConversation
     }}>
       {children}
     </ChatContext.Provider>

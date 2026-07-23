@@ -10,6 +10,7 @@ export default function MembersPanel({ room, open }) {
   const members = [...room.members].sort((a, b) =>
     (a.status === "online" ? -1 : 1) - (b.status === "online" ? -1 : 1)
   );
+
   const onlineCount = members.filter((m) => m.status === "online").length;
 
   const handleKick = async (target, ban) => {

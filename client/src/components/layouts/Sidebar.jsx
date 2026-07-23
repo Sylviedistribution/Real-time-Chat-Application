@@ -4,6 +4,7 @@ import { useAuth } from "../../hooks/useAuth";
 import { useChat } from "../../hooks/useChat";
 import Avatar from "../ui/Avatar";
 import CreateRoomModal from "../rooms/CreateRoomModal";
+import NewConversationModal from "../chat/NewConversationModal";
 
 function SectionTitle({ children, action }) {
   return (
@@ -23,6 +24,7 @@ export default function Sidebar() {
   const { rooms, conversations, loading, joinRoom } = useChat();
   const navigate = useNavigate();
   const [showCreate, setShowCreate] = useState(false);
+  const [showNewConv, setShowNewConv] = useState(false);
   const [joining, setJoining] = useState(null);
 
   const isMember = (room) => room.members.some((m) => (m._id ?? m) === user._id);
@@ -92,7 +94,22 @@ export default function Sidebar() {
           </>
         )}
 
-        <SectionTitle>Messages privés</SectionTitle>
+        <SectionTitle
+          action={
+            <button
+              onClick={() => setShowNewConv(true)}
+              title="Nouvelle conversation"
+              className="text-white/50 hover:text-gold transition text-base leading-none"
+            >
+              ＋
+            </button>
+          }
+        >
+          Messages privés
+        </SectionTitle>
+        {!loading && conversations.length === 0 && (
+          <p className="px-4 py-1.5 text-xs text-white/40">Aucune conversation ↑</p>
+        )}
         {conversations.map((conv) => {
           const other = conv.participants.find((p) => p._id !== user._id);
           if (!other) return null;
@@ -114,6 +131,7 @@ export default function Sidebar() {
       </div>
 
       {showCreate && <CreateRoomModal onClose={() => setShowCreate(false)} />}
+      {showNewConv && <NewConversationModal onClose={() => setShowNewConv(false)} />}
     </aside>
   );
 }

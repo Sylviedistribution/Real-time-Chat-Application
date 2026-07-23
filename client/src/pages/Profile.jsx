@@ -17,7 +17,7 @@ export default function Profile() {
 
   return (
     <main className="min-h-screen flex items-center justify-center p-4">
-      <div className="w-full max-w-[420px] bg-white rounded-2xl border border-scribe/15 p-8">
+      <div className="w-full max-w-105 bg-white rounded-2xl border border-scribe/15 p-8">
         <div className="flex flex-col items-center gap-3 mb-8">
           <Avatar username={user.username} status="online" size="md" />
           <h1 className="font-display text-xl text-lapis">Mon profil</h1>
