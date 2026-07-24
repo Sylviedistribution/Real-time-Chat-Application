@@ -36,33 +36,111 @@
   "paths": {
     "/auth/register": {
       "post": {
-        "description": "",
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Créer un compte",
+        "description": "Inscrit un nouvel utilisateur et renvoie immédiatement un jeton de session. Route publique.",
         "responses": {
           "201": {
-            "description": "Created"
+            "description": "Compte créé, jeton renvoyé"
           },
           "400": {
-            "description": "Bad Request"
+            "description": "Données invalides"
+          },
+          "409": {
+            "description": "Email ou nom d'utilisateur déjà utilisé"
+          }
+        },
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "username",
+                  "email",
+                  "password"
+                ],
+                "properties": {
+                  "username": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 30,
+                    "example": "awa"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "awa@thottalk.app"
+                  },
+                  "password": {
+                    "type": "string",
+                    "minLength": 8,
+                    "example": "sagesse2026"
+                  }
+                }
+              }
+            }
           }
         }
       }
     },
     "/auth/login": {
       "post": {
-        "description": "",
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Se connecter",
+        "description": "Vérifie les identifiants et renvoie un jeton. La réponse est identique que l\\'email soit inconnu ou le mot de passe incorrect, pour ne pas révéler quels emails sont enregistrés.",
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "Connexion réussie, jeton renvoyé"
           },
           "400": {
-            "description": "Bad Request"
+            "description": "Données invalides"
+          },
+          "401": {
+            "description": "Identifiants invalides"
+          }
+        },
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "email",
+                  "password"
+                ],
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "awa@thottalk.app"
+                  },
+                  "password": {
+                    "type": "string",
+                    "example": "sagesse2026"
+                  }
+                }
+              }
+            }
           }
         }
       }
     },
     "/auth/me": {
       "get": {
-        "description": "",
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Récupérer l'utilisateur courant",
+        "description": "Utilisée par le client au démarrage pour restaurer la session à partir du jeton conservé localement.",
         "parameters": [
           {
             "name": "authorization",
@@ -74,14 +152,21 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "Utilisateur authentifié"
+          },
+          "401": {
+            "description": "Jeton absent, invalide ou expiré"
           }
         }
       }
     },
     "/users/search": {
       "get": {
-        "description": "",
+        "tags": [
+          "Users"
+        ],
+        "summary": "Rechercher des utilisateurs par pseudo",
+        "description": "Recherche insensible à la casse, limitée à dix résultats et excluant le demandeur. Les adresses email ne sont jamais exposées.",
         "parameters": [
           {
             "name": "authorization",
@@ -93,24 +178,47 @@
           {
             "name": "q",
             "in": "query",
+            "required": true,
             "schema": {
-              "type": "string"
-            }
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "example": "string"
+                },
+                "minLength": {
+                  "type": "number",
+                  "example": 2
+                },
+                "maxLength": {
+                  "type": "number",
+                  "example": 30
+                }
+              }
+            },
+            "example": "aw"
           }
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "Liste des utilisateurs correspondants"
           },
           "400": {
-            "description": "Bad Request"
+            "description": "Requête trop courte (moins de 2 caractères)"
+          },
+          "401": {
+            "description": "Non authentifié"
           }
         }
       }
     },
     "/users/me": {
       "patch": {
-        "description": "",
+        "tags": [
+          "Users"
+        ],
+        "summary": "Mettre à jour son profil",
+        "description": "Mise à jour partielle : seuls les champs fournis sont modifiés.",
         "parameters": [
           {
             "name": "authorization",
@@ -122,17 +230,48 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "Profil mis à jour"
           },
           "400": {
-            "description": "Bad Request"
+            "description": "Données invalides"
+          },
+          "401": {
+            "description": "Non authentifié"
+          },
+          "409": {
+            "description": "Nom d'utilisateur déjà pris"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "username": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 30
+                  },
+                  "avatarUrl": {
+                    "type": "string",
+                    "format": "uri"
+                  }
+                }
+              }
+            }
           }
         }
       }
     },
     "/rooms/": {
       "get": {
-        "description": "",
+        "tags": [
+          "Rooms"
+        ],
+        "summary": "Lister les salons publics",
+        "description": "Renvoie tous les salons publics avec leur propriétaire et leurs membres peuplés.",
         "parameters": [
           {
             "name": "authorization",
@@ -144,12 +283,19 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "Liste des salons"
+          },
+          "401": {
+            "description": "Non authentifié"
           }
         }
       },
       "post": {
-        "description": "",
+        "tags": [
+          "Rooms"
+        ],
+        "summary": "Créer un salon",
+        "description": "Le créateur devient automatiquement propriétaire et premier membre.",
         "parameters": [
           {
             "name": "authorization",
@@ -161,16 +307,48 @@
         ],
         "responses": {
           "201": {
-            "description": "Created"
+            "description": "Salon créé"
           },
           "400": {
-            "description": "Bad Request"
+            "description": "Données invalides"
+          },
+          "409": {
+            "description": "Nom de salon déjà pris"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "name"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 50,
+                    "example": "projet-react"
+                  },
+                  "description": {
+                    "type": "string",
+                    "maxLength": 200
+                  }
+                }
+              }
+            }
           }
         }
       }
     },
     "/rooms/{roomId}": {
       "get": {
+        "tags": [
+          "Rooms"
+        ],
+        "summary": "Récupérer un salon",
         "description": "",
         "parameters": [
           {
@@ -191,12 +369,22 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "Salon trouvé"
+          },
+          "401": {
+            "description": "Non authentifié"
+          },
+          "404": {
+            "description": "Salon introuvable"
           }
         }
       },
       "delete": {
-        "description": "",
+        "tags": [
+          "Rooms"
+        ],
+        "summary": "Supprimer un salon",
+        "description": "Réservé au propriétaire. Les messages du salon sont supprimés en cascade.",
         "parameters": [
           {
             "name": "roomId",
@@ -216,14 +404,24 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "Salon supprimé"
+          },
+          "403": {
+            "description": "Seul le propriétaire peut supprimer"
+          },
+          "404": {
+            "description": "Salon introuvable"
           }
         }
       }
     },
     "/rooms/{roomId}/join": {
       "post": {
-        "description": "",
+        "tags": [
+          "Rooms"
+        ],
+        "summary": "Rejoindre un salon",
+        "description": "Refusé si l'utilisateur est banni (403) ou déjà membre (409).",
         "parameters": [
           {
             "name": "roomId",
@@ -243,14 +441,27 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "Adhésion enregistrée"
+          },
+          "403": {
+            "description": "Utilisateur banni de ce salon"
+          },
+          "404": {
+            "description": "Salon introuvable"
+          },
+          "409": {
+            "description": "Déjà membre"
           }
         }
       }
     },
     "/rooms/{roomId}/leave": {
       "post": {
-        "description": "",
+        "tags": [
+          "Rooms"
+        ],
+        "summary": "Quitter un salon",
+        "description": "Si le propriétaire quitte, la propriété est transférée au plus ancien membre restant. Si le dernier membre part, le salon est supprimé et la réponse contient deleted: true.",
         "parameters": [
           {
             "name": "roomId",
@@ -270,14 +481,24 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "Départ enregistré"
+          },
+          "404": {
+            "description": "Salon introuvable"
+          },
+          "409": {
+            "description": "Non membre du salon"
           }
         }
       }
     },
     "/rooms/{roomId}/kick/{userId}": {
       "post": {
-        "description": "",
+        "tags": [
+          "Rooms"
+        ],
+        "summary": "Expulser ou bannir un membre",
+        "description": "Réservé au propriétaire, qui ne peut pas s'expulser lui-même. Avec ban: true, l'utilisateur ne pourra plus rejoindre le salon.",
         "parameters": [
           {
             "name": "roomId",
@@ -305,14 +526,42 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "Membre retiré"
+          },
+          "403": {
+            "description": "Seul le propriétaire peut modérer"
+          },
+          "404": {
+            "description": "Salon introuvable"
+          },
+          "409": {
+            "description": "Cet utilisateur n'est pas membre"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "ban": {
+                    "type": "boolean",
+                    "default": false
+                  }
+                }
+              }
+            }
           }
         }
       }
     },
     "/conversations/": {
       "get": {
-        "description": "",
+        "tags": [
+          "Conversations"
+        ],
+        "summary": "Lister mes conversations",
+        "description": "Triées par activité récente, la plus récemment active en premier.",
         "parameters": [
           {
             "name": "authorization",
@@ -324,14 +573,21 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "Liste des conversations"
+          },
+          "401": {
+            "description": "Non authentifié"
           }
         }
       }
     },
     "/conversations/with/{userId}": {
       "post": {
-        "description": "",
+        "tags": [
+          "Conversations"
+        ],
+        "summary": "Ouvrir une conversation avec un utilisateur",
+        "description": "Renvoie la conversation existante ou la crée. Deux appels successifs renvoient le même identifiant grâce à une clé canonique en base.",
         "parameters": [
           {
             "name": "userId",
@@ -351,14 +607,24 @@
         ],
         "responses": {
           "201": {
-            "description": "Created"
+            "description": "Conversation ouverte"
+          },
+          "400": {
+            "description": "Conversation avec soi-même impossible"
+          },
+          "404": {
+            "description": "Utilisateur introuvable"
           }
         }
       }
     },
     "/messages/{channelId}": {
       "get": {
-        "description": "",
+        "tags": [
+          "Messages"
+        ],
+        "summary": "Historique paginé d'un canal",
+        "description": "Le canal peut être un salon ou une conversation : le serveur détermine le type et vérifie l\\'accès. Messages renvoyés du plus ancien au plus récent, la page 1 contenant les plus récents.",
         "parameters": [
           {
             "name": "channelId",
@@ -379,28 +645,70 @@
             "name": "page",
             "in": "query",
             "schema": {
-              "type": "string"
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "example": "integer"
+                },
+                "minimum": {
+                  "type": "number",
+                  "example": 1
+                },
+                "default": {
+                  "type": "number",
+                  "example": 1
+                }
+              }
             }
           },
           {
             "name": "limit",
             "in": "query",
             "schema": {
-              "type": "string"
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "example": "integer"
+                },
+                "minimum": {
+                  "type": "number",
+                  "example": 1
+                },
+                "maximum": {
+                  "type": "number",
+                  "example": 100
+                },
+                "default": {
+                  "type": "number",
+                  "example": 30
+                }
+              }
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "Tranche de l'historique avec pagination"
           },
           "400": {
-            "description": "Bad Request"
+            "description": "Paramètre de page invalide"
+          },
+          "403": {
+            "description": "Accès au canal refusé"
+          },
+          "404": {
+            "description": "Canal introuvable"
           }
         }
       },
       "post": {
-        "description": "",
+        "tags": [
+          "Messages"
+        ],
+        "summary": "Envoyer un message (voie REST)",
+        "description": "Voie REST, utilisée notamment par les tests. En usage normal, le client envoie ses messages par Socket.IO, qui appelle le même service et applique les mêmes contrôles.",
         "parameters": [
           {
             "name": "channelId",
@@ -420,20 +728,33 @@
         ],
         "responses": {
           "201": {
-            "description": "Created"
+            "description": "Message enregistré"
           },
           "400": {
-            "description": "Bad Request"
+            "description": "Contenu vide ou trop long"
+          },
+          "403": {
+            "description": "Accès au canal refusé"
+          },
+          "404": {
+            "description": "Canal introuvable"
           }
         },
         "requestBody": {
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "type": "object",
+                "required": [
+                  "content"
+                ],
                 "properties": {
                   "content": {
-                    "example": "any"
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 2000,
+                    "example": "Bonjour à tous"
                   }
                 }
               }
