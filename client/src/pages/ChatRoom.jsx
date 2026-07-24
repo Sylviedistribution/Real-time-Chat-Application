@@ -6,7 +6,7 @@ import { useAuth } from "../hooks/useAuth";
 import MessageList from "../components/chat/MessageList";
 import MessageInput from "../components/chat/MessageInput";
 import MembersPanel from "../components/chat/MemberPanels";
-import MessagesSkeleton from "../components/chat/MessagesSkeleteton";
+import MessagesSkeleton from "../components/chat/MessagesSkeleton";
 import Spinner from "../components/ui/Spinner";
 
 export default function ChatRoom() {

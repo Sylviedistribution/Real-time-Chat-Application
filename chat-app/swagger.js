@@ -13,7 +13,7 @@ const doc = {
       "diffusion instantanée des messages. Les deux canaux partagent la même " +
       "couche de services, donc les mêmes règles d'autorisation.",
   },
-  servers: [{ url: "http://localhost:5000/api", description: "Développement local" }],
+  servers: [{ url: "https://thottalk-api.onrender.com/api", description: "Développement local" }],
   tags: [
     { name: "Auth", description: "Inscription, connexion et session" },
     { name: "Users", description: "Profil et recherche" },
