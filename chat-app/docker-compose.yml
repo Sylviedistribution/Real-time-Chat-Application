@@ -1,0 +1,27 @@
+services:
+  mongo:
+    image: mongo:7
+    container_name: thottalk-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+  api:
+    build:
+      context: ./chat-app
+    container_name: thottalk-api
+    ports:
+      - "5000:5000"
+    environment:
+      NODE_ENV: production
+      PORT: 5000
+      MONGODB_URI: mongodb://mongo:27017/thottalk
+      JWT_SECRET: secret_local_uniquement_a_changer_en_production
+      JWT_EXPIRES_IN: 7d
+      CLIENT_URL: http://localhost:5173,http://localhost:8080
+    depends_on:
+      - mongo
+
+volumes:
+  mongo-data:

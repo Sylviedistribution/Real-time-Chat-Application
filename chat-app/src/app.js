@@ -10,7 +10,8 @@ const swaggerUi = require("swagger-ui-express");
 const swaggerFile = require("../swagger-output.json");
 
 const app = express();
-
+// Derrière le proxy de Render : lire l'IP réelle dans X-Forwarded-For
+app.set("trust proxy", 1);
 // --- Middlewares globaux (l'ordre EST significatif) ---
 app.use(helmet());
 app.use(cors({ origin: env.clientUrl, credentials: true }));
