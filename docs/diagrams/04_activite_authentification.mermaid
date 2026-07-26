@@ -1,0 +1,38 @@
+flowchart TD
+    Start([Début]) --> A[L'utilisateur ouvre ThotTalk]
+    A --> B{Jeton JWT présent<br/>et non expiré ?}
+    B -- Oui --> H[Redirection vers /chat]
+    B -- Non --> C[Affichage page de connexion]
+
+    C --> D{Compte existant ?}
+    D -- Non --> E[Formulaire d'inscription]
+    E --> E1[Saisie username, email, mot de passe]
+    E1 --> E2{Validation côté client<br/>React Hook Form}
+    E2 -- Invalide --> E1
+    E2 -- Valide --> E3[POST /api/auth/register]
+    E3 --> E4{Validation serveur<br/>express-validator}
+    E4 -- Invalide --> E5[Erreurs 400 affichées] --> E1
+    E4 -- Valide --> E6{Email ou username<br/>déjà utilisé ?}
+    E6 -- Oui --> E7[Erreur 409 affichée] --> E1
+    E6 -- Non --> E8[Hash bcrypt du mot de passe]
+    E8 --> E9[(Création User en base)]
+    E9 --> G
+
+    D -- Oui --> F[Formulaire de connexion]
+    F --> F1[POST /api/auth/login]
+    F1 --> F2{Rate limit<br/>dépassé ?}
+    F2 -- Oui --> F3[Erreur 429 : réessayer plus tard] --> F
+    F2 -- Non --> F4{Identifiants valides ?<br/>bcrypt.compare}
+    F4 -- Non --> F5[Erreur 401 générique] --> F
+    F4 -- Oui --> G[Signature du JWT<br/>durée limitée]
+
+    G --> G1[Stockage du jeton côté client]
+    G1 --> G2[Connexion Socket.IO<br/>JWT dans le handshake]
+    G2 --> G3{Handshake<br/>accepté ?}
+    G3 -- Non --> C
+    G3 -- Oui --> H
+    H --> End([Utilisateur dans l'application])
+
+    style Start fill:#DCFCE7,stroke:#166534
+    style End fill:#DCFCE7,stroke:#166534
+    style E9 fill:#EEF2FF,stroke:#312E81

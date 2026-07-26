@@ -1,0 +1,42 @@
+flowchart LR
+    V((Visiteur))
+    U((Utilisateur<br/>authentifié))
+
+    subgraph ThotTalk["Système ThotTalk"]
+        UC1([S'inscrire])
+        UC2([Se connecter])
+        UC3([Gérer son profil et son avatar])
+        UC4([Créer un salon])
+        UC5([Rejoindre / quitter un salon])
+        UC6([Consulter la liste des salons])
+        UC7([Envoyer / recevoir des messages<br/>en temps réel])
+        UC8([Consulter l'historique paginé])
+        UC9([Voir la présence en ligne<br/>et les membres du salon])
+        UC10([Démarrer une conversation privée])
+        UC11([Rechercher un utilisateur])
+        UC12([Se déconnecter])
+        AUTH{{"« include » Vérifier JWT"}}
+    end
+
+    V --> UC1
+    V --> UC2
+    U --> UC3
+    U --> UC4
+    U --> UC5
+    U --> UC6
+    U --> UC7
+    U --> UC8
+    U --> UC9
+    U --> UC10
+    U --> UC11
+    U --> UC12
+
+    UC3 -.-> AUTH
+    UC4 -.-> AUTH
+    UC5 -.-> AUTH
+    UC7 -.-> AUTH
+    UC10 -.-> AUTH
+
+    style ThotTalk fill:#EEF2FF,stroke:#312E81
+    style V fill:#FEF3C7,stroke:#B45309
+    style U fill:#FEF3C7,stroke:#B45309

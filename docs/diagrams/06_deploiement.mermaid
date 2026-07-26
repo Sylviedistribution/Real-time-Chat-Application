@@ -1,0 +1,32 @@
+flowchart LR
+    Dev["Poste développeur<br/>Sylvestre"] -- "git push" --> GH["GitHub<br/>monorepo thottalk"]
+
+    GH -- "GitHub Actions<br/>lint + tests" --> CI{"CI verte ?"}
+    CI -- Oui --> DeployF["Déploiement auto"]
+    CI -- Oui --> DeployB["Déploiement auto"]
+    CI -- Non --> Stop["Déploiement bloqué<br/>correction requise"]
+
+    subgraph VERCEL["Vercel — CDN mondial"]
+        Front["client/ (React build statique)<br/>HTTPS automatique"]
+    end
+
+    subgraph RENDER["Render — conteneur Node"]
+        Back["server/ (Express + Socket.IO)<br/>HTTPS · WSS<br/>⚠ cold start ~50s (tier gratuit)"]
+    end
+
+    subgraph ATLAS["MongoDB Atlas — cluster M0"]
+        Mongo[("Base thottalk<br/>users · rooms ·<br/>conversations · messages")]
+    end
+
+    DeployF --> Front
+    DeployB --> Back
+
+    Navigateur["Navigateur<br/>utilisateur"] -- "HTTPS" --> Front
+    Navigateur -- "HTTPS (REST /api)" --> Back
+    Navigateur -- "WSS (Socket.IO)" --> Back
+    Back -- "Connexion chiffrée<br/>+ IP allowlist" --> Mongo
+
+    style VERCEL fill:#FFF7ED,stroke:#B45309
+    style RENDER fill:#EEF2FF,stroke:#312E81
+    style ATLAS fill:#DCFCE7,stroke:#166534
+    style Stop fill:#FEE2E2,stroke:#991B1B

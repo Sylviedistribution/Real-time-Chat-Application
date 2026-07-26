@@ -1,0 +1,53 @@
+classDiagram
+    direction LR
+
+    class User {
+        +ObjectId _id
+        +String username
+        +String email
+        +String passwordHash
+        +String avatarUrl
+        +String status  «online | offline»
+        +Date lastSeenAt
+        +Date createdAt
+        +comparePassword(candidate) Boolean
+    }
+
+    class Room {
+        +ObjectId _id
+        +String name
+        +String description
+        +ObjectId owner
+        +ObjectId[] members
+        +Date createdAt
+        +isMember(userId) Boolean
+    }
+
+    class Conversation {
+        +ObjectId _id
+        +ObjectId[] participants  «exactement 2»
+        +Date createdAt
+        +Date updatedAt
+    }
+
+    class Message {
+        +ObjectId _id
+        +ObjectId sender
+        +ObjectId room  «nullable»
+        +ObjectId conversation  «nullable»
+        +String content
+        +String type  «text | image | file»
+        +String status  «sent | delivered | read»
+        +Date createdAt
+    }
+
+    User "1" --> "0..*" Room : possède (owner)
+    User "0..*" --> "0..*" Room : est membre de
+    User "2" --> "0..*" Conversation : participe à
+    User "1" --> "0..*" Message : envoie
+    Room "1" --> "0..*" Message : contient
+    Conversation "1" --> "0..*" Message : contient
+
+    note for Message "Contrainte métier : un message appartient
+soit à un Room, soit à une Conversation,
+jamais aux deux (validation Mongoose en Phase 5)"

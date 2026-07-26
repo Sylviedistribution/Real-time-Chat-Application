@@ -1,0 +1,35 @@
+sequenceDiagram
+    autonumber
+    actor Awa
+    participant CA as Client React (Awa)
+    participant SIO as Socket.IO Serveur
+    participant SVC as messageService
+    participant DB as MongoDB Atlas
+    participant CM as Client React (Moussa)
+
+    Note over CA,SIO: Connexion socket déjà établie<br/>JWT vérifié au handshake
+
+    Awa->>CA: Tape "Salut !" et presse Entrée
+    CA->>SIO: emit "message:send" {roomId, content}
+    SIO->>SIO: Récupère userId depuis le socket authentifié
+    SIO->>SVC: create(userId, roomId, content)
+    SVC->>SVC: Valide (salon existe ? membre ? contenu non vide ?)
+
+    alt Validation échouée
+        SVC-->>SIO: Erreur métier
+        SIO-->>CA: emit "message:error" {raison}
+    else Validation réussie
+        SVC->>DB: Message.create(...)
+        DB-->>SVC: Document persisté (_id, createdAt)
+        SVC-->>SIO: Message complet + expéditeur peuplé
+        SIO->>CA: io.to(roomId) "message:new"
+        SIO->>CM: io.to(roomId) "message:new"
+        CA->>CA: Ajoute le message à l'état → re-rendu
+        CM->>CM: Ajoute le message à l'état → re-rendu
+        CM->>SIO: emit "message:read" {messageId}
+        SIO->>SVC: markAsRead(messageId, userId)
+        SVC->>DB: updateOne {status: "read"}
+        SIO->>CA: emit "message:status" {messageId, "read"}
+    end
+
+    Note over CM: Plus tard, à l'ouverture du salon :<br/>GET /api/messages/:roomId?page=1 (REST)<br/>pour charger l'historique paginé

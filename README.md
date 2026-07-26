@@ -259,10 +259,8 @@ Development was documented incident by incident: **20 anomalies** across the RES
 | Document | Location |
 |---|---|
 | Academic report (research, design, deployment — EN) | `docs/report/` |
-| Software Requirements Specification (EN) + Cahier des charges (FR) | `docs/specs/` |
 | UML diagrams (6, Mermaid sources) | `docs/diagrams/` |
 | Incident journal (20 documented anomalies) | `docs/` |
-| Functional test grids (v1 UI-only, v2 full-stack) | `docs/qa/` |
 | Interactive API reference | [`/api-docs`](https://thottalk-api.onrender.com/api-docs) |
 
 ## 15. Author

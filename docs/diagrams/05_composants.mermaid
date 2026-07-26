@@ -1,0 +1,43 @@
+flowchart TB
+    subgraph CLIENT["CLIENT — React (Vite)"]
+        direction TB
+        Pages["Pages<br/>Login · Register · Chat · Profile"]
+        Comp["Composants UI<br/>chat/ · rooms/ · ui/"]
+        Ctx["Context API<br/>AuthContext · ChatContext"]
+        Hooks["Hooks<br/>useAuth · useSocket · useMessages"]
+        API["Couche api/<br/>instance Axios + intercepteur JWT"]
+        SockC["sockets/socket.js<br/>singleton socket.io-client"]
+
+        Pages --> Comp
+        Pages --> Ctx
+        Comp --> Hooks
+        Hooks --> Ctx
+        Hooks --> API
+        Hooks --> SockC
+    end
+
+    subgraph SERVER["SERVEUR — Node.js / Express"]
+        direction TB
+        MW["Middlewares globaux<br/>helmet · cors · rate-limit · morgan"]
+        Routes["Routes /api<br/>auth · users · rooms · messages"]
+        MWR["Middlewares de route<br/>auth JWT · validation"]
+        Ctrl["Contrôleurs"]
+        SockS["sockets/<br/>auth handshake · chat.handlers"]
+        Svc["SERVICES<br/>auth · user · room · message<br/>(logique métier partagée)"]
+        Models["Modèles Mongoose<br/>User · Room · Conversation · Message"]
+
+        MW --> Routes --> MWR --> Ctrl --> Svc
+        SockS --> Svc
+        Svc --> Models
+    end
+
+    DB[("MongoDB Atlas")]
+
+    API -- "HTTPS · REST · JSON" --> MW
+    SockC -- "WSS · événements" --> SockS
+    Models --> DB
+
+    style CLIENT fill:#FFF7ED,stroke:#B45309
+    style SERVER fill:#EEF2FF,stroke:#312E81
+    style Svc fill:#312E81,color:#FFFFFF
+    style DB fill:#DCFCE7,stroke:#166534
