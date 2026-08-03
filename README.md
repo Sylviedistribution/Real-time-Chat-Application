@@ -16,6 +16,7 @@ ThotTalk is a real-time messaging platform where users exchange messages instant
 | ⚙️ **API (health check)** | https://thottalk-api.onrender.com/api/health |
 | 📖 **Interactive API docs** | https://thottalk-api.onrender.com/api-docs |
 | 📄 **Academic report** | [`docs/report/`](docs/report/) *(2,500–3,500 words — research, design and deployment discussion)* |
+| ▶️ **Video** | https://drive.google.com/file/d/14Kjg_WvKbBTTOtt3TWZeRn4Je7jdabY0/view?usp=sharing |
 
 > ⏱️ **Note:** the backend runs on Render's free tier, which sleeps after 15 minutes of inactivity. The first request may take up to a minute — the in-app loading screen covers this wake-up time.
 
